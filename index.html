@@ -1,0 +1,416 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRAGYA +2 High School, Jamu</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            color: #333;
+        }
+        header {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+        }
+        .logo {
+            max-width: 150px;
+            height: auto;
+            margin-bottom: 0.5rem;
+        }
+        nav {
+            background: #34495e;
+            padding: 1rem;
+        }
+        nav ul {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        nav ul li {
+            margin: 0 1rem;
+        }
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        nav ul li a:hover {
+            color: #3498db;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        section {
+            margin-bottom: 2rem;
+        }
+        h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 0.5rem;
+        }
+        .messages, .streams, .subjects {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .message, .stream, .subject {
+            flex: 1;
+            min-width: 300px;
+            background: #f9f9f9;
+            padding: 1rem;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .message img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 0.5rem;
+            border: 2px solid #3498db;
+        }
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        .gallery img {
+            width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+        .notice-board {
+            height: 100px;
+            overflow: hidden;
+            position: relative;
+        }
+        .notice-board ul {
+            list-style: disc;
+            padding-left: 1.5rem;
+            animation: scroll-up 10s linear infinite;
+            margin: 0;
+        }
+        .notice-board ul li {
+            margin-bottom: 1rem;
+        }
+        @keyframes scroll-up {
+            0% {
+                transform: translateY(0);
+            }
+            100% {
+                transform: translateY(-100%);
+            }
+        }
+        .notice-board:hover ul {
+            animation-play-state: paused;
+        }
+        footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .subject h3 a {
+            cursor: pointer;
+        }
+        .class-notes {
+            display: none;
+        }
+        .class-notes.active {
+            display: block;
+        }
+        @media (max-width: 768px) {
+            nav ul li {
+                margin: 0.5rem;
+            }
+            .container {
+                padding: 1rem;
+            }
+            .notice-board {
+                height: 150px;
+            }
+            .logo {
+                max-width: 120px;
+            }
+            .message img {
+                width: 80px;
+                height: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="https://i.ibb.co/1fVrZR9B/ss-1-removebg-preview.png" alt="PRAGYA +2 High School Logo" class="logo">
+        <h1>PRAGYA +2 High School, Jamu</h1>
+    </header>
+    <nav>
+        <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#academics">Academics</a></li>
+            <li><a href="#notice-board">Notice Board</a></li>
+            <li><a href="#class-notes">Class Notes</a></li>
+            <li><a href="#gallery">Gallery</a></li>
+            <li><a href="#admissions">Admissions</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+    <div class="container">
+        <section id="home">
+            <h2>Welcome to PRAGYA +2 High School, Jamu</h2>
+            <p>Established in 1993, PRAGYA +2 High School, Jamu, is a premier institution dedicated to providing quality education based on the New Education Policy 2020. Affiliated to both JAC (Jharkhand Academic Council) and CBSE up to the 10+2 level, our school follows the 10+2 pattern in English medium, fostering academic excellence and holistic development. Our state-of-the-art facilities, dedicated faculty, and vibrant community make us a beacon of learning in the region.</p>
+        </section>
+        <section id="messages">
+            <h2>Messages</h2>
+            <div class="messages">
+                <div class="message">
+                    <img src="images/principal.jpg" alt="Principal Laxmi Kumari">
+                    <h3>From the Principal, Laxmi Kumari</h3>
+                    <p>At PRAGYA, we believe in nurturing young minds to achieve their fullest potential. Our dedicated team is committed to providing an environment where students can grow academically and personally.</p>
+                </div>
+                <div class="message">
+                    <img src="images/director.jpg" alt="Director Prakash Saha">
+                    <h3>From the Director, Prakash Saha</h3>
+                    <p>Our vision is to create a learning community that fosters innovation, creativity, and leadership. We are proud to follow the NEP 2020, ensuring our students are prepared for future challenges.</p>
+                </div>
+            </div>
+        </section>
+        <section id="academics">
+            <h2>Academic Programmes</h2>
+            <p>PRAGYA +2 High School follows the 10+2 curriculum affiliated to both JAC (Jharkhand Academic Council) and CBSE, in English medium, aligned with the New Education Policy 2020. Our academic programs are designed to promote critical thinking, creativity, and holistic development.</p>
+            <div class="streams">
+                <div class="stream">
+                    <h3>Science Stream</h3>
+                    <p>Physics, Chemistry, Biology, Mathematics, and Computer Science for students seeking careers in engineering, medicine, and research.</p>
+                </div>
+                <div class="stream">
+                    <h3>Commerce Stream</h3>
+                    <p>Accountancy, Business Studies, Economics, and Informatics Practices for students pursuing business and finance.</p>
+                </div>
+                <div class="stream">
+                    <h3>Arts Stream</h3>
+                    <p>History, Geography, Political Science, and Sociology for students interested in humanities and social sciences.</p>
+                </div>
+            </div>
+        </section>
+        <section id="notice-board">
+            <h2>Notice Board</h2>
+            <p>Stay updated with the latest announcements and events at PRAGYA +2 High School, Jamu.</p>
+            <div class="notice-board">
+                <ul>
+                    <li>Annual Sports Day: Scheduled for July 20, 2025, from 8:00 AM to 2:00 PM. All students are encouraged to participate in various sports. <a href="#">View Poster (JPG)</a></li>
+                    <li>Parent-Teacher Meeting: August 5, 2025, at 9:00 AM in the school auditorium. <a href="#">View Schedule (PDF)</a></li>
+                    <li>Science Exhibition: Project submissions due by August 10, 2025. <a href="#">View Guidelines (JPG)</a></li>
+                    <li>School Holiday: Independence Day, August 15, 2025. <a href="#">View Holiday Notice (PDF)</a></li>
+                </ul>
+            </div>
+        </section>
+        <section id="class-notes">
+            <h2>Class Notes</h2>
+            <p>Access class notes organized by subject. Click on a subject to toggle the visibility of class-wise notes. Each class note link opens in a new tab.</p>
+            <div class="subjects">
+                <div class="subject">
+                    <h3><a onclick="toggleNotes('science-notes')">Science</a></h3>
+                    <ul id="science-notes" class="class-notes">
+                        <li><a href="https://drive.google.com/file/d/1eVVJksriOpeQeLOCK6scGWFRy5Rbj6eZ/view?usp=drive_link" target="_blank">Class 1 Notes</a></li>
+                        <li><a href="https://drive.google.com/file/d/161l1mbNUJxRD7ZUFahT9fpw_f7KFzGkd/view?usp=drive_link" target="_blank">Class 2 Notes</a></li>
+                        <li><a href="https://drive.google.com/file/d/1qNlhjj6Pln18Ra74PdZUdP0HPwmsU7qw/view?usp=drive_link" target="_blank">Class 3 Notes</a></li>
+                        <li><a href="https://drive.google.com/file/d/1QUCADLze8wvhlNf3FYQC4KYGstyq9x52/view?usp=drive_link" target="_blank">Class 4 Notes</a></li>
+                        <li><a href="notes/science/class5.pdf" target="_blank">Class 5 Notes</a></li>
+                        <li><a href="notes/science/class6.pdf" target="_blank">Class 6 Notes</a></li>
+                        <li><a href="notes/science/class7.pdf" target="_blank">Class 7 Notes</a></li>
+                        <li><a href="notes/science/class8.pdf" target="_blank">Class 8 Notes</a></li>
+                        <li><a href="notes/science/class9.pdf" target="_blank">Class 9 Notes</a></li>
+                        <li><a href="notes/science/class10.pdf" target="_blank">Class 10 Notes</a></li>
+                    </ul>
+                </div>
+                <div class="subject">
+                    <h3><a onclick="toggleNotes('maths-notes')">Maths</a></h3>
+                    <ul id="maths-notes" class="class-notes">
+                        <li><a href="notes/maths/class1.pdf" target="_blank">Class 1 Notes</a></li>
+                        <li><a href="notes/maths/class2.pdf" target="_blank">Class 2 Notes</a></li>
+                        <li><a href="notes/maths/class3.pdf" target="_blank">Class 3 Notes</a></li>
+                        <li><a href="notes/maths/class4.pdf" target="_blank">Class 4 Notes</a></li>
+                        <li><a href="notes/maths/class5.pdf" target="_blank">Class 5 Notes</a></li>
+                        <li><a href="notes/maths/class6.pdf" target="_blank">Class 6 Notes</a></li>
+                        <li><a href="notes/maths/class7.pdf" target="_blank">Class 7 Notes</a></li>
+                        <li><a href="notes/maths/class8.pdf" target="_blank">Class 8 Notes</a></li>
+                        <li><a href="notes/maths/class9.pdf" target="_blank">Class 9 Notes</a></li>
+                        <li><a href="notes/maths/class10.pdf" target="_blank">Class 10 Notes</a></li>
+                    </ul>
+                </div>
+                <div class="subject">
+                    <h3><a onclick="toggleNotes('hindi-notes')">Hindi</a></h3>
+                    <ul id="hindi-notes" class="class-notes">
+                        <li><a href="notes/hindi/class1.pdf" target="_blank">Class 1 Notes</a></li>
+                        <li><a href="notes/hindi/class2.pdf" target="_blank">Class 2 Notes</a></li>
+                        <li><a href="notes/hindi/class3.pdf" target="_blank">Class 3 Notes</a></li>
+                        <li><a href="notes/hindi/class4.pdf" target="_blank">Class 4 Notes</a></li>
+                        <li><a href="notes/hindi/class5.pdf" target="_blank">Class 5 Notes</a></li>
+                        <li><a href="notes/hindi/class6.pdf" target="_blank">Class 6 Notes</a></li>
+                        <li><a href="notes/hindi/class7.pdf" target="_blank">Class 7 Notes</a></li>
+                        <li><a href="notes/hindi/class8.pdf" target="_blank">Class 8 Notes</a></li>
+                        <li><a href="notes/hindi/class9.pdf" target="_blank">Class 9 Notes</a></li>
+                        <li><a href="notes/hindi/class10.pdf" target="_blank">Class 10 Notes</a></li>
+                    </ul>
+                </div>
+                <div class="subject">
+                    <h3><a onclick="toggleNotes('social-science-notes')">Social Science</a></h3>
+                    <ul id="social-science-notes" class="class-notes">
+                        <li><a href="https://drive.google.com/file/d/1Nt5aGmPtXTTFRfqSpd_eTyLP0bsqou3h/view?usp=drive_link" target="_blank">Class 1 Notes</a></li>
+                        <li><a href="https://drive.google.com/file/d/1gNNOStH3t5EjLdmqyUmO9yFoxzbcmoRl/view?usp=drive_link" target="_blank">Class 2 Notes</a></li>
+                        <li><a href="https://drive.google.com/file/d/1BGZZGcHGmTMBVGdRc_x2S9nBbaISsakd/view?usp=drive_link" target="_blank">Class 3 Notes</a></li>
+                        <li><a href="https://drive.google.com/file/d/1rO1yxXx6Zsi02j4Ti641Q8lQBzk9X0CB/view?usp=drive_link" target="_blank">Class 4 Notes</a></li>
+                        <li><a href="https://drive.google.com/file/d/1Gj7wFqFFoJHHZdmdAATmx7Xi_gP6hLJe/view?usp=drive_link" target="_blank">Class 5 Notes</a></li>
+                        <li><a href="https://drive.google.com/file/d/1vquPsNn3v97acsUmJzAMRALGsET4Qlpd/view?usp=drive_link" target="_blank">Class 6 Notes</a></li>
+                        <li><a href="https://drive.google.com/file/d/1eBlFQSsEKkr3TC5ysyC2airBNOj_UBir/view?usp=drive_link" target="_blank">Class 7 Notes</a></li>
+                        <li><a href="https://drive.google.com/file/d/1h7hqezPP_WjIyTLzaGxuT5EPg76CZoJf/view?usp=drive_link" target="_blank">Class 8 Notes</a></li>
+                        <li><a href="notes/social-science/class9.pdf" target="_blank">Class 9 Notes</a></li>
+                        <li><a href="notes/social-science/class10.pdf" target="_blank">Class 10 Notes</a></li>
+                    </ul>
+                </div>
+                <div class="subject">
+                    <h3><a onclick="toggleNotes('english-notes')">English</a></h3>
+                    <ul id="english-notes" class="class-notes">
+                        <li><a href="https://drive.google.com/file/d/1R2LLO6ZsPjsf-Inlygo_0LVMCNS3NHrA/view?usp=drive_link" target="_blank">Class 1 Notes</a></li>
+                        <li><a href="https://drive.google.com/file/d/1yPrB6rGf15QFcDq70CztqlneqdYmF872/view?usp=drive_link" target="_blank">Class 2 Notes</a></li>
+                        <li><a href="https://drive.google.com/file/d/1wuiGe1mSU7t_7H8pATr2nXVyvwPLuBtT/view?usp=drive_link" target="_blank">Class 3 Notes</a></li>
+                        <li><a href="https://drive.google.com/file/d/1mNXSJ4J34f5l-WuS_xnX4WV5TG0Z6Kev/view?usp=drive_link" target="_blank">Class 4 Notes</a></li>
+                        <li><a href="https://drive.google.com/file/d/1TdRnhLJwmLf3gFdBnz0K4RbKKtZnl9aZ/view?usp=drive_link" target="_blank">Class 5 Notes</a></li>
+                        <li><a href="https://drive.google.com/file/d/1Q8oGhQ3x_QoZhr-yc7_OQ-FxKDCSgLWP/view?usp=drive_link" target="_blank">Class 6 Notes</a></li>
+                        <li><a href="https://drive.google.com/file/d/1vmnYuJvNe0cp-8Ojh-gVXkbvw2kNkHyu/view?usp=drive_link" target="_blank">Class 7 Notes</a></li>
+                        <li><a href="https://drive.google.com/file/d/1eSoT6Kw6pO-H3c8L52x9NGSLw7P9BJOK/view?usp=drive_link" target="_blank">Class 8 Notes</a></li>
+                        <li><a href="notes/english/class9.pdf" target="_blank">Class 9 Notes</a></li>
+                        <li><a href="notes/english/class10.pdf" target="_blank">Class 10 Notes</a></li>
+                    </ul>
+                </div>
+                <div class="subject">
+                    <h3><a onclick="toggleNotes('computer-notes')">Computer</a></h3>
+                    <ul id="computer-notes" class="class-notes">
+                        <li><a href="https://drive.google.com/file/d/18aJX2ghkcjos2oUUk7YKbiHsxfQ9BFqk/view?usp=drive_link" target="_blank">Class 1 Notes</a></li>
+                        <li><a href="https://drive.google.com/file/d/1Aspkr4d9Fh3cw7ZKa3-fv3G6DdwBmE74/view?usp=drive_link" target="_blank">Class 2 Notes</a></li>
+                        <li><a href="https://drive.google.com/file/d/1nOpmUoar74LZb4f-QqWc2auMqasJGbH0/view?usp=drive_link" target="_blank">Class 3 Notes</a></li>
+                        <li><a href="https://drive.google.com/file/d/1Kdqh6kheff0qqcbwiHKq6ycVL3RNlxbH/view?usp=drive_link" target="_blank">Class 4 Notes</a></li>
+                        <li><a href="https://drive.google.com/file/d/1QqPz8d3nCG_jeaSWGdrDcp2Wf1OzK4dL/view?usp=drive_link" target="_blank">Class 5 Notes</a></li>
+                        <li><a href="https://drive.google.com/file/d/1dmXjXLwxWIQiumzRJtGoEwUBnFpJaTX9/view?usp=drive_link" target="_blank">Class 6 Notes</a></li>
+                        <li><a href="https://drive.google.com/file/d/1fhOwjhXdEif8d-60Xcnj9A_X-qKcQMrD/view?usp=drive_link" target="_blank">Class 7 Notes</a></li>
+                        <li><a href="https://drive.google.com/file/d/1Q_chTqWOlUfN1pGKZlc2uzggC5TpBE2Z/view?usp=drive_link" target="_blank">Class 8 Notes</a></li>
+                        <li><a href="notes/maths/class9.pdf" target="_blank">Class 9 Notes</a></li>
+                        <li><a href="notes/maths/class10.pdf" target="_blank">Class 10 Notes</a></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        <section id="gallery">
+            <h2>Gallery</h2>
+            <p>Explore our vibrant school life through these captured moments.</p>
+            <div class="gallery">
+                <img src="placeholder.jpg" alt="School Event 1">
+                <img src="placeholder.jpg" alt="School Event 2">
+                <img src="placeholder.jpg" alt="School Event 3">
+                <img src="placeholder.jpg" alt="School Event 4">
+            </div>
+            <p><a href="#">View More Photos</a></p>
+        </section>
+        <section id="admissions">
+            <h2>Admissions</h2>
+            <p>Admission to PRAGYA +2 High School is open for students seeking a quality education. Follow the steps below to apply.</p>
+            <h3>Admission Procedure</h3>
+            <ul>
+                <li>Visit the school office or download the application form from the link below.</li>
+                <li>Submit the completed application form with the required documents (birth certificate, previous academic records, and passport-size photos).</li>
+                <li>Appear for an entrance examination and interview (if applicable).</li>
+                <li>Upon selection, complete the fee payment process as per the school guidelines.</li>
+            </ul>
+            <p><a href="#">Download Admission Form</a></p>
+        </section>
+        <section id="about">
+            <h2>About Us</h2>
+            <h3>Our History</h3>
+            <p>Founded in 1993, PRAGYA +2 High School, Jamu, has been a cornerstone of education in the region for over three decades. Our mission is to empower students with knowledge, skills, and values to excel in a dynamic world.</p>
+        </section>
+        <section id="contact">
+            <h2>Contact Us</h2>
+            <p>Email: <a href="mailto:info@pragyahighschool.com">info@pragyahighschool.com</a></p>
+            <p>Phone: +91 9638527410, +91 1472583690</p>
+            <p>Address: PRAGYA +2 High School, Jamu, India</p>
+        </section>
+    </div>
+    <footer>
+        <p>© 2025 PRAGYA +2 High School, Jamu. All Rights Reserved.</p>
+        <p>Based on New Education Policy 2020 | JAC & CBSE Curriculum | English Medium</p>
+    </footer>
+    <script>
+        function toggleNotes(id) {
+            const notes = document.getElementById(id);
+            const isActive = notes.classList.contains('active');
+            document.querySelectorAll('.class-notes').forEach(note => {
+                note.classList.remove('active');
+            });
+            if (!isActive) {
+                notes.classList.add('active');
+            }
+        }
+    </script>
+</body>
+</html>
